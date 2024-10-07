@@ -20,22 +20,26 @@ function Login({ setAuthenticated }) {
     };
 
     return (
-        <div>
+        <div className="container mt-5">
             <h2>Login</h2>
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={handleLogin}>Login</button>
-            {error && <p>{error}</p>}
+            <div className="form-group">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+                <input
+                    type="password"
+                    className="form-control mt-2"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <button className="btn btn-primary mt-3" onClick={handleLogin}>Login</button>
+                {error && <p className="text-danger">{error}</p>}
+            </div>
         </div>
     );
 }
