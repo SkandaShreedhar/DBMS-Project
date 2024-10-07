@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:5000'); // have to update with my server URL
+const socket = io.connect('http://localhost:5000'); // Update with your server URL
 
 function Chat() {
     const [message, setMessage] = useState('');
@@ -19,19 +19,24 @@ function Chat() {
     };
 
     return (
-        <div>
-            <h2>Chat</h2>
-            <div>
-                {chat.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                ))}
+        <div className="container mt-5">
+            <div className="chat-window border rounded p-3">
+                <h2>Chat</h2>
+                <div>
+                    {chat.map((msg, index) => (
+                        <p key={index}>{msg}</p>
+                    ))}
+                </div>
+                <div className="chat-input mt-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <button className="btn btn-primary mt-2" onClick={sendMessage}>Send</button>
+                </div>
             </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
         </div>
     );
 }
