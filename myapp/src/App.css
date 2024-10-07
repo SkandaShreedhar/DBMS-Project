@@ -1,38 +1,86 @@
-.App {
-  text-align: center;
+/* App.css */
+
+body {
+  background-color: #f0f2f5; /* Light grey background */
+  font-family: 'Arial', sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.navbar {
+  padding: 1rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.navbar h1 {
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.navbar-nav .nav-link {
+  color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.navbar-nav .nav-link:hover {
+  color: #dcdcdc; /* Slightly lighter on hover */
+}
+
+.container {
+  margin-top: 20px;
+}
+
+.chat-window {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+}
+
+.chat-input button:hover {
+  background-color: #0056b3;
+}
+
+h2 {
+  color: #343a40; /* Dark grey */
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.list-group-item {
+  background-color: #e9ecef; /* Light grey for list items */
+}
+
+.list-group-item:hover {
+  background-color: #ced4da; /* Darker grey on hover */
+}
+
+.text-danger {
+  color: #dc3545; /* Bootstrap danger color */
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  background-color: #007bff;
+  color: white;
+  position: relative;
+  bottom: 0;
+  width: 100%;
 }
