@@ -7,7 +7,7 @@ function ChatHistory() {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const response = await axios.get('/api/history'); // have to replace with the actual user endpoint API 
+                const response = await axios.get('/api/history'); // Replace with your actual API endpoint
                 setHistory(response.data);
             } catch (error) {
                 console.error("Error fetching chat history:", error);
@@ -17,11 +17,11 @@ function ChatHistory() {
     }, []);
 
     return (
-        <div>
+        <div className="container mt-5">
             <h2>Chat History</h2>
-            <ul>
+            <ul className="list-group">
                 {history.map((msg, index) => (
-                    <li key={index}>
+                    <li key={index} className="list-group-item">
                         <strong>{msg.username}</strong>: {msg.message}
                     </li>
                 ))}
