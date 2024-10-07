@@ -7,7 +7,7 @@ function UserList() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('/api/users'); // have to replace with the actual user endpoint API 
+                const response = await axios.get('/api/users'); // Replace with your actual API endpoint
                 setUsers(response.data);
             } catch (error) {
                 console.error("Error fetching users:", error);
@@ -17,11 +17,11 @@ function UserList() {
     }, []);
 
     return (
-        <div>
+        <div className="container mt-5">
             <h2>Online Users</h2>
-            <ul>
+            <ul className="list-group">
                 {users.map((user, index) => (
-                    <li key={index}>{user.username}</li>
+                    <li key={index} className="list-group-item">{user.username}</li>
                 ))}
             </ul>
         </div>
