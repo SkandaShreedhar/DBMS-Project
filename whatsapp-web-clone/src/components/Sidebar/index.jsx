@@ -16,7 +16,7 @@ const Sidebar = () => {
 					<img src={avatar} alt="Karen Okonkwo" className="avatar" />
 				</div>
 				<div className="sidebar__actions">
-					<button className="sidebar__action" aria-label="Status">
+					{/* <button className="sidebar__action" aria-label="Status">
 						<Icon
 							id="status"
 							className="sidebar__action-icon sidebar__action-icon--status"
@@ -24,7 +24,7 @@ const Sidebar = () => {
 					</button>
 					<button className="sidebar__action" aria-label="New chat">
 						<Icon id="chat" className="sidebar__action-icon" />
-					</button>
+					</button> */}
 					<OptionsBtn
 						className="sidebar__action"
 						ariaLabel="Menu"
@@ -32,18 +32,14 @@ const Sidebar = () => {
 						iconClassName="sidebar__action-icon"
 						options={[
 							"New group",
-							"Create a room",
 							"Profile",
-							"Archived",
-							"Starred",
-							"Settings",
 							"Log out",
 						]}
 					/>
 				</div>
 			</header>
-			<Alert />
-			<div className="search-wrapper">
+			{/* <Alert /> */}
+			{/* <div className="search-wrapper">
 				<div className="search-icons">
 					<Icon id="search" className="search-icon" />
 					<button className="search__back-btn">
@@ -51,7 +47,7 @@ const Sidebar = () => {
 					</button>
 				</div>
 				<input className="search" placeholder="Search or start a new chat" />
-			</div>
+			</div> */}
 			<div className="sidebar__contacts">
 				{contacts.map((contact, index) => (
 					<Contact key={index} contact={contact} />

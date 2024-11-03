@@ -24,8 +24,6 @@ const Contact = ({ contact }) => {
 		>
 			<div className="sidebar-contact__avatar-wrapper">
 				<img
-					src={contact.profile_picture}
-					alt={contact.profile_picture}
 					className="avatar"
 				/>
 			</div>

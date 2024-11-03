@@ -43,7 +43,7 @@
     border-radius: 50%;
     height: 100%;
     width: 100%;
-    object-fit: cover;
+    background-color: #9d9f9f;
 }
 
 .emoji {
@@ -72,7 +72,7 @@
 
 .search {
     background: white;
-    color: rgb(74, 74, 74);
+    color: white;
     padding-left: 60px;
     border-radius: 18px;
     width: 100%;
