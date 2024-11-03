@@ -31,6 +31,7 @@ const Sidebar = () => {
 						iconId="menu"
 						iconClassName="sidebar__action-icon"
 						options={[
+							"New chat",
 							"New group",
 							"Profile",
 							"Log out",
