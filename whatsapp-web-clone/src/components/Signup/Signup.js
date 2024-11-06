@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 function Signup() {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
+	const history = useHistory()
 
 	const handlePhoneNumberChange = (e) => {
 		setPhoneNumber(e.target.value);
@@ -23,6 +24,18 @@ function Signup() {
 			return;
 		}
 
+		fetch("http://localhost:5000/signup", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				"phoneNumber": phoneNumber,
+				"password": password
+			})
+		}).then(data => {
+			history.push("/signin")
+		})
 	};
 
 	return (
@@ -61,6 +74,7 @@ function Signup() {
 						<button
 							type="submit"
 							className="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition duration-300"
+							onSubmit={handleSubmit}
 						>
 							Sign Up
 						</button>

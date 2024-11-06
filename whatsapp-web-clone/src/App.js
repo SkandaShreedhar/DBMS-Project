@@ -5,7 +5,6 @@ import Loader from "./components/Loader";
 import Home from "./pages/Home";
 import Sidebar from "components/Sidebar";
 import Chat from "pages/Chat";
-import Auth from "components/Auth/Auth";
 import Signin from "components/Signin/Signin";
 import Signup from "components/Signup/Signup";
 
@@ -24,7 +23,7 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		setToken(localStorage.getItem("token"))
+		setToken(localStorage.getItem("token")) 
 	}, [])
 
 	const stopLoad = () => {

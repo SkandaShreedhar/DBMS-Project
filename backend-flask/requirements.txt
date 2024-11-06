@@ -7,3 +7,4 @@ Werkzeug==2.2.2
 python-dotenv
 pydantic
 SQLAlchemy
+PyJWT

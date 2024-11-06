@@ -3,6 +3,7 @@ import "./styles/main.css";
 import Icon from "components/Icon";
 import introImgLight from "assets/images/intro-connection-light.jpg";
 import introImgDark from "assets/images/intro-connection-dark.jpg";
+import { useEffect, useState } from "react/cjs/react.production.min";
 
 const Home = () => {
 	const darkTheme = document.body.classList.contains("dark-theme");
