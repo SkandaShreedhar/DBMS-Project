@@ -5,6 +5,9 @@ import Loader from "./components/Loader";
 import Home from "./pages/Home";
 import Sidebar from "components/Sidebar";
 import Chat from "pages/Chat";
+import Auth from "components/Auth/Auth";
+import Signin from "components/Signin/Signin";
+import Signup from "components/Signup/Signup";
 
 const userPrefersDark =
 	window.matchMedia &&
@@ -13,11 +16,16 @@ const userPrefersDark =
 function App() {
 	const [appLoaded, setAppLoaded] = useState(false);
 	const [startLoadProgress, setStartLoadProgress] = useState(false);
+	const [token, setToken] = useState(null);
 
 	useEffect(() => {
 		if (userPrefersDark) document.body.classList.add("dark-theme");
 		stopLoad();
 	}, []);
+
+	useEffect(() => {
+		setToken(localStorage.getItem("token"))
+	}, [])
 
 	const stopLoad = () => {
 		setStartLoadProgress(true);
@@ -33,8 +41,10 @@ function App() {
 				<div className="app-content">
 					<Sidebar />
 					<Switch>
+						<Route exact path="/" component={Home} />
 						<Route path="/chat/:id" component={Chat} />
-						<Route component={Home} />
+						<Route path="/signin" component={Signin} />
+						<Route path="/signup" component={Signup} />
 					</Switch>
 				</div>
 			</Router>

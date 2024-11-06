@@ -1,4 +1,9 @@
-Flask 
+Flask==2.1.3
 Flask-SocketIO 
 eventlet
 flask-cors
+flask-mysql-connector
+Werkzeug==2.2.2
+python-dotenv
+pydantic
+SQLAlchemy
