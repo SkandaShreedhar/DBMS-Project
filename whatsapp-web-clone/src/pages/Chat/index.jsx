@@ -25,6 +25,7 @@ const Chat = ({ match, history }) => {
 
 	useEffect(() => {
 		if (!user) history.push("/");
+		if (!user.messages) history.push("/")
 		else {
 			scrollToLastMsg();
 			setUserAsUnread(user.id);
@@ -32,7 +33,9 @@ const Chat = ({ match, history }) => {
 	}, []);
 
 	useEffect(() => {
-		user && scrollToLastMsg();
+		if (user && user.messages) {
+			scrollToLastMsg();
+		}
 	}, [users]);
 
 	const openSidebar = (cb) => {
@@ -45,7 +48,9 @@ const Chat = ({ match, history }) => {
 	};
 
 	const scrollToLastMsg = () => {
-		lastMsgRef.current.scrollIntoView();
+		if (lastMsgRef.current) {
+			lastMsgRef.current.scrollIntoView();
+		}
 	};
 
 	const submitNewMessage = () => {

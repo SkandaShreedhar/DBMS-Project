@@ -9,7 +9,7 @@ const useUsersContext = () => useContext(UsersContext);
 const UsersProvider = ({ children }) => {
 	const socket = useSocketContext();
 
-	const [users, setUsers] = useState([]); 
+	const [users, setUsers] = useState([]);
 
 	useEffect(() => {
 		fetch("http://localhost:5000/chats_and_groups", {
@@ -23,7 +23,29 @@ const UsersProvider = ({ children }) => {
 		}).then(data => {
 			return data.json()
 		}).then(data => {
-			
+			let length = data.otherUsernames.length;
+			let objs = []
+			for (let i = 0; i < length; i++) {
+				objs.push(
+					{
+						id: data.otherUserIDS[i],
+						profile_picture: null,
+						name: data.otherUsernames[i],
+						phone_number: "+2348123456789",
+						whatsapp_name: data.otherUsernames[i],
+						unread: 0,
+						messages: {
+							TODAY: [
+								
+							]
+						},
+						group: false,
+						pinned: true,
+						typing: false,
+					}
+				)
+			}
+			setUsers(objs)
 		})
 	}, [])
 

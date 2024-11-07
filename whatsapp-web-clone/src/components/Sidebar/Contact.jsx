@@ -31,12 +31,12 @@ const Contact = ({ contact }) => {
 				<div className="sidebar-contact__top-content">
 					<h2 className="sidebar-contact__name"> {contact.name} </h2>
 					<span className="sidebar-contact__time">
-						{formatTime(lastMessage.time)}
+						{lastMessage ? formatTime(lastMessage.time) : <></>}
 					</span>
 				</div>
 				<div className="sidebar-contact__bottom-content">
 					<p className="sidebar-contact__message-wrapper">
-						{lastMessage.status && (
+						{lastMessage && lastMessage.status && (
 							<Icon
 								id={
 									lastMessage?.status === "sent" ? "singleTick" : "doubleTick"

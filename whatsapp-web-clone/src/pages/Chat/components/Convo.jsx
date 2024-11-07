@@ -10,16 +10,6 @@ const Convo = ({ lastMsgRef, messages: allMessages }) => {
 		const messages = allMessages[date];
 		return (
 			<div key={dateIndex}>
-				<div className="chat__date-wrapper">
-					<span className="chat__date"> {date}</span>
-				</div>
-				{dateIndex === 0 && (
-					<p className="chat__encryption-msg">
-						<Icon id="lock" className="chat__encryption-icon" />
-						Messages are end-to-end encrypted. No one outside of this chat, not
-						even WhatsApp, can read or listen to them. Click to learn more.
-					</p>
-				)}
 				<div className="chat__msg-group">
 					{messages.map((message, msgIndex) => {
 						const assignRef = () =>
