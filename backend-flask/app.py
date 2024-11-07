@@ -51,7 +51,7 @@ def login():
     password = data.get("password")
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE phone_number = %s AND password = %s", (phoneNumber, password))
+    cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
     user = cursor.fetchone()
     cursor.close()
 
@@ -81,14 +81,14 @@ def signup():
     password = data.get("password")
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE phone_number = %s", (phoneNumber,))
+    cursor.execute("SELECT * FROM Users WHERE UserName = %s", (phoneNumber,))
     existing_user = cursor.fetchone()
 
     if existing_user:
         return jsonify({"status": "error", "message": "User already exists"}), 409
 
     # Insert new user into the database
-    cursor.execute("INSERT INTO users (phone_number, password) VALUES (%s, %s)", (phoneNumber, password))
+    cursor.execute("INSERT INTO Users (UserName, Password) VALUES (%s, %s)", (phoneNumber, password))
     mysql.connection.commit()
 
     cursor.close()
@@ -103,9 +103,51 @@ def fetch_profile_details():
 def set_profile_details():
     pass
 
-@app.route("/chats_and_groups", methods=["GET"])
+@app.route("/chats_and_groups", methods=["POST"])
 def get_chat_and_groups():
-    pass
+    data = request.get_json()
+    token = data.get("token")
+
+    try:
+        data = jwt.decode(token, JWT_SECRET_KEY, algorithms = ["HS256"])
+    except Exception as e:
+        print(e)
+
+        return {
+            "message": "Check your token please"
+        }
+
+    UserName = data.get("phone_number")
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (UserName,))
+    UserID = cursor.fetchone()[0]
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Chats WHERE UserId1 = %s OR UserId2 = %s", (UserID, UserID))
+    chats = cursor.fetchall()
+
+    otherUserIDS = []
+    for chat in chats:
+        other_userid = None
+        if (chat[1] == UserID):
+            other_userid = chat[2]
+        else:
+            other_userid = chat[1]
+
+        otherUserIDS.append(other_userid)
+
+    otherUsernames = []
+    for userid in otherUserIDS:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT UserName FROM Users WHERE UserID = %s", (userid,))
+        username = cursor.fetchone()
+        otherUsernames.append(username)
+
+    return {
+        "message": "OK",
+        "otherUserIDS": otherUserIDS,
+        "otherUsernames": otherUsernames
+    }
 
 @app.route("/chat", methods=["POST"])
 def create_chat():

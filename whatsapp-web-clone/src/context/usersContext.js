@@ -9,7 +9,23 @@ const useUsersContext = () => useContext(UsersContext);
 const UsersProvider = ({ children }) => {
 	const socket = useSocketContext();
 
-	const [users, setUsers] = useState(contacts);
+	const [users, setUsers] = useState([]); 
+
+	useEffect(() => {
+		fetch("http://localhost:5000/chats_and_groups", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				"token": localStorage.getItem('token')
+			})
+		}).then(data => {
+			return data.json()
+		}).then(data => {
+			
+		})
+	}, [])
 
 	const _updateUserProp = (userId, prop, value) => {
 		setUsers((users) => {
