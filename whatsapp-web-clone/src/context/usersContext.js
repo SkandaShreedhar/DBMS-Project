@@ -38,7 +38,7 @@ const UsersProvider = ({ children }) => {
 							messages: {
 								TODAY: [
 									
-								],
+								]
 							},
 							group: false,
 							pinned: true,
@@ -50,6 +50,42 @@ const UsersProvider = ({ children }) => {
 			}
 		})
 	}, [])
+
+	const populateMessages = (userID) => {
+		fetch("http://localhost:5000/conversation", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				"token": localStorage.getItem('token'),
+				"recipient_user_id": userID
+			})
+		}).then(data => {
+			return data.json()
+		}).then(data => {
+			setUsers(users => {
+				const usersCopy = [...users];
+				let userIndex = users.findIndex(user => {
+					console.log(user.id, userID)
+					return user.id == userID
+				});
+				
+				usersCopy[userIndex].messages.TODAY = data.allmessages.map(element => {
+					let message = element[0];
+					let position = element[1];
+
+					return {
+						content: message,
+						sender: position < 0 ? 1 : null,
+						time: position < 0 ? (position * -1) : position,
+						status: null,
+					}
+				})
+				return usersCopy
+			})
+		});
+	}
 
 	const _updateUserProp = (userId, prop, value) => {
 		setUsers((users) => {
@@ -89,6 +125,8 @@ const UsersProvider = ({ children }) => {
 			return usersCopy;
 		});
 	};
+	
+
 
 	useEffect(() => {
 		socket.on("fetch_response", fetchMessageResponse);
@@ -117,7 +155,7 @@ const UsersProvider = ({ children }) => {
 	};
 
 	return (
-		<UsersContext.Provider value={{ users, setUserAsUnread, addNewMessage }}>
+		<UsersContext.Provider value={{ users, setUserAsUnread, addNewMessage, populateMessages }}>
 			{children}
 		</UsersContext.Provider>
 	);

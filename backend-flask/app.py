@@ -205,11 +205,15 @@ def get_conversation():
 
     cursor.close()
 
+    all_messages = received_messages + sent_messages
+
+    # Sort based on the absolute value of the second element
+    all_messages_sorted = sorted(all_messages, key=lambda x: abs(x[1]))
+
     # Return conversation data
     return {
         "message": "OK",
-        "sent_messages": sent_messages_list,
-        "received_messages": received_messages_list,
+        "allmessages": all_messages_sorted
     }
 
 
