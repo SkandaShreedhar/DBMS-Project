@@ -23,29 +23,31 @@ const UsersProvider = ({ children }) => {
 		}).then(data => {
 			return data.json()
 		}).then(data => {
-			let length = data.otherUsernames.length;
-			let objs = []
-			for (let i = 0; i < length; i++) {
-				objs.push(
-					{
-						id: data.otherUserIDS[i],
-						profile_picture: null,
-						name: data.otherUsernames[i],
-						phone_number: "+2348123456789",
-						whatsapp_name: data.otherUsernames[i],
-						unread: 0,
-						messages: {
-							TODAY: [
-								
-							]
-						},
-						group: false,
-						pinned: true,
-						typing: false,
-					}
-				)
+			if (data && data.otherUsernames) {
+				let length = data.otherUsernames.length;
+				let objs = []
+				for (let i = 0; i < length; i++) {
+					objs.push(
+						{
+							id: data.otherUserIDS[i],
+							profile_picture: null,
+							name: data.otherUsernames[i],
+							phone_number: "+2348123456789",
+							whatsapp_name: data.otherUsernames[i],
+							unread: 0,
+							messages: {
+								TODAY: [
+									
+								],
+							},
+							group: false,
+							pinned: true,
+							typing: false,
+						}
+					)
+				}
+				setUsers(objs)
 			}
-			setUsers(objs)
 		})
 	}, [])
 
