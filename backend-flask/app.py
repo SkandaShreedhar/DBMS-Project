@@ -157,9 +157,60 @@ def create_chat():
 def create_group():
     pass
 
-@app.route("/conversation", methods=["GET"])
+@app.route("/conversation", methods=["POST"])
 def get_conversation():
-    pass
+    data = request.get_json()
+    token = data.get("token")
+
+    try:
+        user_data = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+    except Exception as e:
+        print(e)
+        return {"message": "Check your token please"}, 401
+
+    # Get user ID from decoded token data
+    username = user_data.get("phone_number")  # Modify based on your data structure
+
+    # Get recipient user ID from request data (assuming it's sent in the request)
+    recipient_user_id = data.get("recipient_user_id")
+
+    # Validate request parameters
+    if not username or not recipient_user_id:
+        return {"message": "Missing required parameters"}, 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT UserID FROM Users WHERE UserName = %s",
+        (username,)
+    )
+    user_id = cursor.fetchone()[0]
+
+
+    # Fetch sent messages
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT Message, MessageID FROM messages WHERE SenderID = %s AND ReceiverID = %s",
+        (user_id, recipient_user_id),
+    )
+    sent_messages = cursor.fetchall()
+    sent_messages_list = [message for message in sent_messages]  # Extract messages
+
+    # Fetch received messages
+    cursor.execute(
+        "SELECT Message,-1 *  MessageID FROM messages WHERE SenderID = %s AND ReceiverID = %s",
+        (recipient_user_id, user_id),
+    )
+    received_messages = cursor.fetchall()
+    received_messages_list = [message for message in received_messages]  # Extract messages
+
+    cursor.close()
+
+    # Return conversation data
+    return {
+        "message": "OK",
+        "sent_messages": sent_messages_list,
+        "received_messages": received_messages_list,
+    }
 
 
 # Handle WebSocket connections
