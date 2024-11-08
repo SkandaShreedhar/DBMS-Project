@@ -10,6 +10,12 @@ const UsersProvider = ({ children }) => {
 	const socket = useSocketContext();
 
 	const [users, setUsers] = useState([]);
+	const [flag, setFlag] = useState(false);
+	const [rawData, setRawData] = useState(null);
+
+	useEffect(() => {
+		console.log(users)
+	}, [users])
 
 	useEffect(() => {
 		fetch("http://localhost:5000/chats_and_groups", {
@@ -37,7 +43,7 @@ const UsersProvider = ({ children }) => {
 							unread: 0,
 							messages: {
 								TODAY: [
-									
+
 								]
 							},
 							group: false,
@@ -66,11 +72,8 @@ const UsersProvider = ({ children }) => {
 		}).then(data => {
 			setUsers(users => {
 				const usersCopy = [...users];
-				let userIndex = users.findIndex(user => {
-					console.log(user.id, userID)
-					return user.id == userID
-				});
-				
+				let userIndex = users.findIndex(user => user.id == userID);
+
 				usersCopy[userIndex].messages.TODAY = data.allmessages.map(element => {
 					let message = element[0];
 					let position = element[1];
@@ -85,6 +88,67 @@ const UsersProvider = ({ children }) => {
 				return usersCopy
 			})
 		});
+	}
+
+	const joinRoom = (recipient_user_id) => {
+		let data = {
+			"recipient_user_id": recipient_user_id,
+			"token": localStorage.getItem('token')
+		}
+
+		socket.emit("join", JSON.stringify(data))
+	}
+
+	const addNewMessage = (userId, message) => {
+		let userIndex = users.findIndex((user) => user.id === userId);
+		const usersCopy = [...users];
+		const newMsgObject = {
+			content: message,
+			sender: null,
+			time: new Date().toLocaleTimeString(),
+			status: "delivered",
+		};
+
+		usersCopy[userIndex].messages.TODAY.push(newMsgObject);
+		setUsers(usersCopy);
+
+		let payload = {
+			"token": localStorage.getItem("token"),
+			"recipient_user_id": userId,
+			"message": message
+		}
+
+		socket.emit("message", JSON.stringify(payload));
+	};
+
+	useEffect(() => {
+		if (rawData) {
+			let data = JSON.parse(rawData)
+			let userId = data.recipient_user_id
+			let position = data.userid
+			let message = data.message
+
+			let userIndex = users.findIndex((user) => user.id == userId);
+
+			console.log(userId)
+
+			const usersCopy = [...users];
+			const newMsgObject = {
+				content: message,
+				sender: position < 0 ? 1 : null,
+				time: position < 0 ? (position * -1) : position,
+				status: null,
+			};
+
+			console.log(newMsgObject)
+			usersCopy[userIndex].messages.TODAY.push(newMsgObject);
+			setUsers(usersCopy);
+		}
+	}, [flag, rawData])
+
+	const handleMessage = (rawData) => {
+		setFlag(flag => !flag)
+		setRawData(rawData)
 	}
 
 	const _updateUserProp = (userId, prop, value) => {
@@ -107,55 +171,46 @@ const UsersProvider = ({ children }) => {
 		_updateUserProp(userId, "typing", false);
 	};
 
-	const fetchMessageResponse = (data) => {
-		setUsers((users) => {
-			const { userId, response } = data;
-
-			let userIndex = users.findIndex((user) => user.id === userId);
-			const usersCopy = JSON.parse(JSON.stringify(users));
-			const newMsgObject = {
-				content: response,
-				sender: userId,
-				time: new Date().toLocaleTimeString(),
-				status: null,
-			};
-
-			usersCopy[userIndex].messages.TODAY.push(newMsgObject);
-
-			return usersCopy;
-		});
+	const test = (data) => {
+		console.log(data)
 	};
-	
 
+	// const fetchMessageResponse = (data) => {
+	// 	setUsers((users) => {
+	// 		const { userId, response } = data;
+
+	// 		let userIndex = users.findIndex((user) => user.id === userId);
+	// 		const usersCopy = JSON.parse(JSON.stringify(users));
+	// 		const newMsgObject = {
+	// 			content: response,
+	// 			sender: userId,
+	// 			time: new Date().toLocaleTimeString(),
+	// 			status: null,
+	// 		};
+
+	// 		usersCopy[userIndex].messages.TODAY.push(newMsgObject);
+
+	// 		return usersCopy;
+	// 	});
+	// };
 
 	useEffect(() => {
-		socket.on("fetch_response", fetchMessageResponse);
-		socket.on("start_typing", setUserAsTyping);
-		socket.on("stop_typing", setUserAsNotTyping);
+		// socket.on("fetch_response", fetchMessageResponse);
+		// socket.on("start_typing", setUserAsTyping);
+		// socket.on("stop_typing", setUserAsNotTyping);
+
+		// socket.on("test", test);
+
+
+		socket.on("message", handleMessage)
 	}, [socket]);
 
 	const setUserAsUnread = (userId) => {
 		_updateUserProp(userId, "unread", 0);
 	};
 
-	const addNewMessage = (userId, message) => {
-		let userIndex = users.findIndex((user) => user.id === userId);
-		const usersCopy = [...users];
-		const newMsgObject = {
-			content: message,
-			sender: null,
-			time: new Date().toLocaleTimeString(),
-			status: "delivered",
-		};
-
-		usersCopy[userIndex].messages.TODAY.push(newMsgObject);
-		setUsers(usersCopy);
-
-		socket.emit("fetch_response", { userId });
-	};
-
 	return (
-		<UsersContext.Provider value={{ users, setUserAsUnread, addNewMessage, populateMessages }}>
+		<UsersContext.Provider value={{ users, setUserAsUnread, addNewMessage, populateMessages, joinRoom }}>
 			{children}
 		</UsersContext.Provider>
 	);

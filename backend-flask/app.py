@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room, send
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_mysql_connector import MySQL
@@ -7,10 +7,11 @@ import os
 from flask_mysql_connector import MySQL
 import jwt
 import datetime
+import json
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='client/build', static_url_path='/')
+app = Flask(__name__)
 CORS(app)
 
 app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
@@ -24,10 +25,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 mysql = MySQL(app)
 
-socketio = SocketIO(app)
-
-app = Flask(__name__, static_folder='client/build', static_url_path='/')
-CORS(app)
+socketio = SocketIO(app,cors_allowed_origins="*")
 
 @app.route('/test_db')
 def test_db():
@@ -56,7 +54,9 @@ def login():
     cursor.close()
 
     if user:
+        print(user)
         payload = {
+            'userid': user[0],
             'phone_number': phoneNumber,  # You can include more user-specific data here
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expires in 1 hour
         }
@@ -216,12 +216,100 @@ def get_conversation():
         "allmessages": all_messages_sorted
     }
 
-
 # Handle WebSocket connections
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+    emit('response', {'data': 'Connection successful'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+rooms = set()
+
+@socketio.on('join')
+def on_join(payload):
+    data = json.loads(payload)
+
+    user_data = None
+    token = data.get('token')
+
+    recipient_user_id = int(data.get('recipient_user_id'))
+
+    try:
+        user_data = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+    except Exception as e:
+        print(e)
+        return {"message": "Check your token please"}, 401
+
+    user_id = int(user_data.get('userid'))
+
+    if (user_id > recipient_user_id):
+        user_id, recipient_user_id = recipient_user_id, user_id
+
+    # exit from all the rooms
+    for room in rooms:
+        leave_room(room)
+
+    # join the room 
+    room_id = str(user_id) + "_" + str(recipient_user_id)
+    join_room(room_id)
+    rooms.add(room_id)
+
 @socketio.on('message')
 def handle_message(data):
+    data = json.loads(data)
+
+    token = data.get('token')
+    recipient_user_id = int(data.get('recipient_user_id'))
+    message = data.get('message')
+    user_data = None
+
+    try:
+        user_data = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+    except Exception as e:
+        print(e)
+        return {"message": "Check your token please"}, 401
+    
+    user_id = int(user_data.get('userid'))
+
+    sender_id = user_id
+    receiver_id = recipient_user_id
+
+    if (user_id > recipient_user_id):
+        user_id, recipient_user_id = recipient_user_id, user_id
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO Messages (Message, SenderID, ReceiverID, MediaID) VALUES (%s, %s, %s, NULL)",
+        (message, sender_id, receiver_id)
+    )
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT MAX(MessageID) FROM Messages WHERE SenderID = %s AND ReceiverID = %s",
+        (sender_id, receiver_id)
+    )
+
+    id = cursor.fetchone()[0]
+    print(id)
+
+    room_id = str(user_id) + "_" + str(recipient_user_id)
+
+    payload = json.dumps({
+        "userid": -1 * id,
+        "recipient_user_id": sender_id,
+        "message": message
+    })
+
+    emit('message', payload, room=room_id, skip_sid=request.sid)    
+
+
+@socketio.on('test')
+def handle_message(data):
     print(f'Received message: {data}')
-    emit('response', f'Message received: {data}', broadcast=True)
+    emit('test', f'Message received: {data}', broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, port=5000, debug=True)

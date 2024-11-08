@@ -69,4 +69,8 @@ VALUES
 (1, 1, 2),  
 (2, 1, 3),  
 (3, 2, 4),  
-(4, 3, 4); 
+(4, 3, 4);
+
+-- INSERT INTO Messages (MessageID, Message, SenderID, ReceiverID, MediaID)
+-- VALUES 
+-- ();

@@ -11,7 +11,7 @@ import Convo from "./components/Convo";
 import { useUsersContext } from "context/usersContext";
 
 const Chat = ({ match, history }) => {
-	const { users, setUserAsUnread, addNewMessage, populateMessages } = useUsersContext();
+	const { users, setUserAsUnread, addNewMessage, populateMessages, joinRoom } = useUsersContext();
 
 	const userId = match.params.id;
 	let user = users.filter((user) => user.id === Number(userId))[0];
@@ -34,6 +34,7 @@ const Chat = ({ match, history }) => {
 
 	useEffect(() => {
 		populateMessages(userId)
+		joinRoom(userId)
 	}, [userId])
 
 	useEffect(() => {
