@@ -143,6 +143,7 @@ const UsersProvider = ({ children }) => {
 			console.log(newMsgObject)
 			usersCopy[userIndex].messages.TODAY.push(newMsgObject);
 			setUsers(usersCopy);
+			setRawData(null)
 		}
 	}, [flag, rawData])
 
