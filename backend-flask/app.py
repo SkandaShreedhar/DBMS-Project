@@ -4,7 +4,6 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_mysql_connector import MySQL
 import os
-from flask_mysql_connector import MySQL
 import jwt
 import datetime
 import json
@@ -125,6 +124,7 @@ def get_chat_and_groups():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM Chats WHERE UserId1 = %s OR UserId2 = %s", (UserID, UserID))
     chats = cursor.fetchall()
+    cursor.close()
 
     otherUserIDS = []
     for chat in chats:
@@ -142,6 +142,7 @@ def get_chat_and_groups():
         cursor.execute("SELECT UserName FROM Users WHERE UserID = %s", (userid,))
         username = cursor.fetchone()
         otherUsernames.append(username)
+        cursor.close()
 
     return {
         "message": "OK",
@@ -184,6 +185,7 @@ def get_conversation():
         (username,)
     )
     user_id = cursor.fetchone()[0]
+    cursor.close()
 
 
     # Fetch sent messages
@@ -283,8 +285,10 @@ def handle_message(data):
     cursor = mysql.connection.cursor()
     cursor.execute(
         "INSERT INTO Messages (Message, SenderID, ReceiverID, MediaID) VALUES (%s, %s, %s, NULL)",
-        (message, sender_id, receiver_id)
+        (message, int(sender_id), int(receiver_id))
     )
+    mysql.connection.commit()
+    cursor.close()
 
     cursor = mysql.connection.cursor()
     cursor.execute(
@@ -293,6 +297,7 @@ def handle_message(data):
     )
 
     id = cursor.fetchone()[0]
+    cursor.close()
     print(id)
 
     room_id = str(user_id) + "_" + str(recipient_user_id)
