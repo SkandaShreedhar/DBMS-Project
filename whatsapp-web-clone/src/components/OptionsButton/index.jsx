@@ -15,9 +15,11 @@ const OptionsBtn = ({
 }) => {
 	const navigate = useNavigate();
 	const [showOptions, setShowOptions] = useState(false);
+	
 
 	const handleLogOut = () => {
 		localStorage.removeItem("token")
+
 		navigate("/signin")
 	}
 

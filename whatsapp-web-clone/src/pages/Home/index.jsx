@@ -1,8 +1,5 @@
 import React, { useEffect } from "react";
 import "./styles/main.css";
-import Icon from "components/Icon";
-import introImgLight from "assets/images/intro-connection-light.jpg";
-import introImgDark from "assets/images/intro-connection-dark.jpg";
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {

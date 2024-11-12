@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import contacts from "data/contacts";
 import { useSocketContext } from "./socketContext";
 
 const UsersContext = createContext();
@@ -12,10 +11,6 @@ const UsersProvider = ({ children }) => {
 	const [users, setUsers] = useState([]);
 	const [flag, setFlag] = useState(false);
 	const [rawData, setRawData] = useState(null);
-
-	useEffect(() => {
-		console.log(users)
-	}, [users])
 
 	useEffect(() => {
 		fetch("http://localhost:5000/chats_and_groups", {
@@ -78,7 +73,7 @@ const UsersProvider = ({ children }) => {
 				const usersCopy = [...users];
 				let userIndex = users.findIndex(user => user.id == userID);
 				
-				if (userIndex != -1) {
+				if (userIndex >= 0) {
 					usersCopy[userIndex].messages.TODAY = data.allmessages.map(element => {
 						let message = element[0];
 						let position = element[1];

@@ -48,9 +48,7 @@ def login():
     password = data.get("password")
 
     cursor = mysql.connection.cursor()
-    # cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
-    query = f"SELECT * FROM Users WHERE UserName = '{phoneNumber}' AND Password = '{password}';"
-    cursor.execute(query)
+    cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
     user = cursor.fetchone()
     cursor.close()
 

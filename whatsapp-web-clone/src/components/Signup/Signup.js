@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
@@ -14,6 +14,12 @@ function Signup() {
 	const handlePasswordChange = (e) => {
 		setPassword(e.target.value);
 	};
+
+	useEffect(() => {
+		if (localStorage.getItem("token")) {
+			navigate("/")
+		}
+	}, [])
 
 	const handleSubmit = (e) => {
 		e.preventDefault();

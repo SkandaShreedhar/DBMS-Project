@@ -20,7 +20,7 @@ function Signin() {
 		setError('');
 
 		if (!phoneNumber || !password) {
-			setError('Please enter both phone number and password');
+			setError('Please enter both username and password');
 			return;
 		}
 
@@ -38,6 +38,7 @@ function Signin() {
 		}).then(data => {
 			localStorage.setItem('token', data.token)
 			navigate("/")
+			window.location.reload()
 		})
 	};
 
