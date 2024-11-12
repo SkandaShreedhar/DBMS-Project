@@ -6,7 +6,7 @@ import Alert from "./Alert";
 import Contact from "./Contact";
 import OptionsBtn from "components/OptionsButton";
 import { useUsersContext } from "context/usersContext";
-import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { useLocation } from "react-router-dom";
 
 const Sidebar = () => {
 	const { users: contacts } = useUsersContext();
@@ -37,8 +37,6 @@ const Sidebar = () => {
 								iconClassName="sidebar__action-icon"
 								options={[
 									"New chat",
-									"New group",
-									"Profile",
 									"Log out",
 								]}
 							/>

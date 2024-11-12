@@ -27,7 +27,7 @@ const Convo = ({ lastMsgRef, messages: allMessages }) => {
 									>
 										<img src={media} alt="" className="chat__img" />
 										<span className="chat__msg-footer">
-											<span>{formatTime(message.time)}</span>
+											{/* <span>{formatTime(message.time)}</span> */}
 											{!message.sender && (
 												<Icon
 													id={
@@ -56,9 +56,9 @@ const Convo = ({ lastMsgRef, messages: allMessages }) => {
 									<p className="chat__msg chat__msg--rxd" ref={assignRef()}>
 										<span>{message.content}</span>
 										<span className="chat__msg-filler"> </span>
-										<span className="chat__msg-footer">
+										{/* <span className="chat__msg-footer">
 											{formatTime(message.time)}
-										</span>
+										</span> */}
 										<button
 											aria-label="Message options"
 											className="chat__msg-options"
@@ -71,7 +71,7 @@ const Convo = ({ lastMsgRef, messages: allMessages }) => {
 										<span>{message.content}</span>
 										<span className="chat__msg-filler"> </span>
 										<span className="chat__msg-footer">
-											<span> {formatTime(message.time)} </span>
+											{/* <span> {formatTime(message.time)} </span> */}
 											<Icon
 												id={
 													message?.status === "sent"

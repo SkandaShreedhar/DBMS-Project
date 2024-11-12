@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
-	const history = useHistory()
+	const navigate = useNavigate()
 
 	const handlePhoneNumberChange = (e) => {
 		setPhoneNumber(e.target.value);
@@ -34,7 +34,7 @@ function Signup() {
 				"password": password
 			})
 		}).then(data => {
-			history.push("/signin")
+			navigate("/signin")
 		})
 	};
 
@@ -47,7 +47,7 @@ function Signup() {
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div>
 							<label className="block text-gray-700 font-medium mb-1" htmlFor="phone">
-								Phone Number
+								User Name
 							</label>
 							<input
 								type="tel"
@@ -55,7 +55,7 @@ function Signup() {
 								value={phoneNumber}
 								onChange={handlePhoneNumberChange}
 								className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-								placeholder="Enter your phone number"
+								placeholder="Enter your username"
 							/>
 						</div>
 						<div>

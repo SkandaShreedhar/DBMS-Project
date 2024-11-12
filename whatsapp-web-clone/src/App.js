@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Loader from "./components/Loader";
 import Home from "./pages/Home";
 import Sidebar from "components/Sidebar";
 import Chat from "pages/Chat";
 import Signin from "components/Signin/Signin";
 import Signup from "components/Signup/Signup";
+import AddNewChat from "AddNewChat/AddNewChat";
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
 const userPrefersDark =
 	window.matchMedia &&
@@ -36,17 +37,18 @@ function App() {
 	return (
 		<div className="app">
 			<p className="app__mobile-message"> Only available on desktop 😊. </p>
-			<Router>
+			<BrowserRouter>
 				<div className="app-content">
 					<Sidebar />
-					<Switch>
-						<Route exact path="/" component={Home} />
-						<Route path="/chat/:id" component={Chat} />
-						<Route path="/signin" component={Signin} />
-						<Route path="/signup" component={Signup} />
-					</Switch>
+					<Routes>
+						<Route exact path="/" element={<Home />} />
+						<Route exact path="/addchat" element={<AddNewChat />} />
+						<Route path="/chat/:id" element={<Chat />} />
+						<Route path="/signin" element={<Signin />} />
+						<Route path="/signup" element={<Signup />} />
+					</Routes>
 				</div>
-			</Router>
+			</BrowserRouter>
 		</div>
 	);
 }

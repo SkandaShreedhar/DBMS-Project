@@ -9,11 +9,15 @@ import Search from "./components/Search";
 import Profile from "./components/Profile";
 import Convo from "./components/Convo";
 import { useUsersContext } from "context/usersContext";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Chat = ({ match, history }) => {
 	const { users, setUserAsUnread, addNewMessage, populateMessages, joinRoom } = useUsersContext();
 
-	const userId = match.params.id;
+	const params = useParams();
+	const navigate = useNavigate();
+
+	const userId = params.id;
 	let user = users.filter((user) => user.id === Number(userId))[0];
 
 	const lastMsgRef = useRef(null);
@@ -24,8 +28,12 @@ const Chat = ({ match, history }) => {
 	const [newMessage, setNewMessage] = useState("");
 
 	useEffect(() => {
-		if (!user) history.push("/");
-		if (!user.messages) history.push("/")
+		if (!user)  {
+			navigate("/")
+		}
+		if (!user?.messages) {
+			navigate("/")
+		}
 		else {
 			scrollToLastMsg();
 			setUserAsUnread(user.id);
@@ -75,7 +83,7 @@ const Chat = ({ match, history }) => {
 					openSearchSidebar={() => openSidebar(setShowSearchSidebar)}
 				/>
 				<div className="chat__content">
-					<Convo lastMsgRef={lastMsgRef} messages={user.messages} />
+					<Convo lastMsgRef={lastMsgRef} messages={user ? user.messages : []} />
 				</div>
 				<footer className="chat__footer">
 					<button

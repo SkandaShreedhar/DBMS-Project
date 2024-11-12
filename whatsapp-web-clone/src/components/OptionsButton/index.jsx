@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Icon from "components/Icon";
 import "./styles/main.css";
+import { useNavigate } from "react-router-dom";
 
 const OptionsBtn = ({
 	className,
@@ -12,7 +13,17 @@ const OptionsBtn = ({
 	showPressed = true,
 	...props
 }) => {
+	const navigate = useNavigate();
 	const [showOptions, setShowOptions] = useState(false);
+
+	const handleLogOut = () => {
+		localStorage.removeItem("token")
+		navigate("/signin")
+	}
+
+	const handleAddNewChat = () => {
+		navigate("/addchat")
+	}
 
 	return (
 		<div className="pos-rel">
@@ -31,11 +42,18 @@ const OptionsBtn = ({
 					showOptions ? "options-btn__options--active" : ""
 				} ${position === "right" ? "options-btn__options--right" : ""}`}
 			>
-				{options.map((option, index) => (
+				{/* {options.map((option, index) => (
 					<li className="options-btn__option" key={index}>
 						{option}
 					</li>
-				))}
+				))} */}
+
+					<li onClick={handleAddNewChat} className="options-btn__option">
+						New Chat
+					</li>
+					<li onClick={handleLogOut} className="options-btn__option">
+						Logout
+					</li>
 			</ul>
 		</div>
 	);

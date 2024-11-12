@@ -27,6 +27,10 @@ const UsersProvider = ({ children }) => {
 				"token": localStorage.getItem('token')
 			})
 		}).then(data => {
+			if (data.status == 401) {
+				localStorage.removeItem("token");
+				return null;
+			}
 			return data.json()
 		}).then(data => {
 			if (data && data.otherUsernames) {
@@ -73,18 +77,20 @@ const UsersProvider = ({ children }) => {
 			setUsers(users => {
 				const usersCopy = [...users];
 				let userIndex = users.findIndex(user => user.id == userID);
-
-				usersCopy[userIndex].messages.TODAY = data.allmessages.map(element => {
-					let message = element[0];
-					let position = element[1];
-
-					return {
-						content: message,
-						sender: position < 0 ? 1 : null,
-						time: position < 0 ? (position * -1) : position,
-						status: null,
-					}
-				})
+				
+				if (userIndex != -1) {
+					usersCopy[userIndex].messages.TODAY = data.allmessages.map(element => {
+						let message = element[0];
+						let position = element[1];
+	
+						return {
+							content: message,
+							sender: position < 0 ? 1 : null,
+							time: position < 0 ? (position * -1) : position,
+							status: null,
+						}
+					})
+				}
 				return usersCopy
 			})
 		});

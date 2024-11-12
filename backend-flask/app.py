@@ -48,7 +48,9 @@ def login():
     password = data.get("password")
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
+    # cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
+    query = f"SELECT * FROM Users WHERE UserName = '{phoneNumber}' AND Password = '{password}';"
+    cursor.execute(query)
     user = cursor.fetchone()
     cursor.close()
 
@@ -57,7 +59,7 @@ def login():
         payload = {
             'userid': user[0],
             'phone_number': phoneNumber,  # You can include more user-specific data here
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expires in 1 hour
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Token expires in 1 hour
         }
 
         token = jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
@@ -112,9 +114,10 @@ def get_chat_and_groups():
     except Exception as e:
         print(e)
 
-        return {
-            "message": "Check your token please"
-        }
+        return jsonify({
+            "status": "error",
+            "message": "Invalid token"
+        }), 401
 
     UserName = data.get("phone_number")
     cursor = mysql.connection.cursor()
@@ -148,6 +151,48 @@ def get_chat_and_groups():
         "message": "OK",
         "otherUserIDS": otherUserIDS,
         "otherUsernames": otherUsernames
+    }
+
+@app.route("/addnewchat", methods=["POST"])
+def addnewchat():
+    data = request.get_json()
+    token = data.get("token")
+    OtherUserName = data.get("username")
+
+    try:
+        data = jwt.decode(token, JWT_SECRET_KEY, algorithms = ["HS256"])
+    except Exception as e:
+        print(e)
+
+        return jsonify({
+            "status": "error",
+            "message": "Invalid token"
+        }), 401
+
+    UserName = data.get("phone_number")
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (UserName,))
+    UserID = int(cursor.fetchone()[0])
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (OtherUserName,))
+    OtherUserID = int(cursor.fetchone()[0])
+   
+    if (UserID > OtherUserID):
+        UserID, OtherUserID = OtherUserID, UserID
+
+    print(UserID, OtherUserID)
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT MAX(ChatId) FROM Chats")
+    newChatId = int(cursor.fetchone()[0]) + 1
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO Chats (ChatId, UserId1, UserId2) VALUES (%s, %s, %s)", (newChatId, UserID, OtherUserID))
+    mysql.connection.commit()
+
+    return {
+        "message": "OK"
     }
 
 @app.route("/chat", methods=["POST"])
