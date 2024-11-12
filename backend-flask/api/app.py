@@ -7,28 +7,42 @@ import os
 import jwt
 import datetime
 import json
+import psycopg2
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-app.config['MYSQL_DATABASE'] = os.getenv('MYSQL_DATABASE')
-app.config['MYSQL_PORT'] = 3306
-app.config['MYSQL_DATABASE_HOST'] = os.getenv('MYSQL_DATABASE_HOST')
-app.config['MYSQL_UNIX_SOCKET'] = '/tmp/mysql.sock' # bro, u r on windows right... remove this line and try 
+# app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+# app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+# app.config['MYSQL_DATABASE'] = os.getenv('MYSQL_DATABASE')
+# app.config['MYSQL_PORT'] = 3306
+# app.config['MYSQL_DATABASE_HOST'] = os.getenv('MYSQL_DATABASE_HOST')
+# app.config['MYSQL_UNIX_SOCKET'] = '/tmp/mysql.sock' # bro, u r on windows right... remove this line and try 
+
+DATABASE_URL = os.getenv("POSTGRES_URL")
+
+conn = None
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
-mysql = MySQL(app)
+# mysql = MySQL(app)
 
 socketio = SocketIO(app,cors_allowed_origins="*")
 
+def getcursor():
+    connection = conn.get_db_connection()
+    return connection.cursor()
+    # return mysql.connection.cursor()
+
+def db_commit(con):
+    # con.connection.commit()
+    con.commit()
+
 @app.route('/test_db')
 def test_db():
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT DATABASE();")
     db_name = cursor.fetchone()
     cursor.close()
@@ -47,7 +61,7 @@ def login():
     phoneNumber = data.get("phoneNumber")
     password = data.get("password")
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT * FROM Users WHERE UserName = %s AND Password = %s", (phoneNumber, password))
     user = cursor.fetchone()
     cursor.close()
@@ -80,7 +94,7 @@ def signup():
     phoneNumber = data.get("phoneNumber")
     password = data.get("password")
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT * FROM Users WHERE UserName = %s", (phoneNumber,))
     existing_user = cursor.fetchone()
 
@@ -89,7 +103,7 @@ def signup():
 
     # Insert new user into the database
     cursor.execute("INSERT INTO Users (UserName, Password) VALUES (%s, %s)", (phoneNumber, password))
-    mysql.connection.commit()
+    db_commit(con)
 
     cursor.close()
 
@@ -119,11 +133,11 @@ def get_chat_and_groups():
         }), 401
 
     UserName = data.get("phone_number")
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (UserName,))
     UserID = cursor.fetchone()[0]
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT * FROM Chats WHERE UserId1 = %s OR UserId2 = %s", (UserID, UserID))
     chats = cursor.fetchall()
     cursor.close()
@@ -140,7 +154,7 @@ def get_chat_and_groups():
 
     otherUsernames = []
     for userid in otherUserIDS:
-        cursor = mysql.connection.cursor()
+        cursor = getcursor()
         cursor.execute("SELECT UserName FROM Users WHERE UserID = %s", (userid,))
         username = cursor.fetchone()
         otherUsernames.append(username)
@@ -169,11 +183,11 @@ def addnewchat():
         }), 401
 
     UserName = data.get("phone_number")
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (UserName,))
     UserID = int(cursor.fetchone()[0])
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (OtherUserName,))
     OtherUserID = int(cursor.fetchone()[0])
    
@@ -182,13 +196,18 @@ def addnewchat():
 
     print(UserID, OtherUserID)
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute("SELECT MAX(ChatId) FROM Chats")
-    newChatId = int(cursor.fetchone()[0]) + 1
+    newChatId = cursor.fetchone()[0]
 
-    cursor = mysql.connection.cursor()
+    if (newChatId == None):
+        newChatId = 1
+    else:
+        newChatId += 1
+
+    cursor = getcursor()
     cursor.execute("INSERT INTO Chats (ChatId, UserId1, UserId2) VALUES (%s, %s, %s)", (newChatId, UserID, OtherUserID))
-    mysql.connection.commit()
+    db_commit(con)
 
     return {
         "message": "OK"
@@ -223,7 +242,7 @@ def get_conversation():
     if not username or not recipient_user_id:
         return {"message": "Missing required parameters"}, 400
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute(
         "SELECT UserID FROM Users WHERE UserName = %s",
         (username,)
@@ -233,7 +252,7 @@ def get_conversation():
 
 
     # Fetch sent messages
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute(
         "SELECT Message, MessageID FROM messages WHERE SenderID = %s AND ReceiverID = %s",
         (user_id, recipient_user_id),
@@ -326,15 +345,15 @@ def handle_message(data):
     if (user_id > recipient_user_id):
         user_id, recipient_user_id = recipient_user_id, user_id
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute(
         "INSERT INTO Messages (Message, SenderID, ReceiverID, MediaID) VALUES (%s, %s, %s, NULL)",
         (message, int(sender_id), int(receiver_id))
     )
-    mysql.connection.commit()
+    db_commit(con)
     cursor.close()
 
-    cursor = mysql.connection.cursor()
+    cursor = getcursor()
     cursor.execute(
         "SELECT MAX(MessageID) FROM Messages WHERE SenderID = %s AND ReceiverID = %s",
         (sender_id, receiver_id)
@@ -361,4 +380,7 @@ def handle_message(data):
     emit('test', f'Message received: {data}', broadcast=True)
 
 if __name__ == '__main__':
+    # print("Attempting to connect to the database")
+    conn = psycopg2.connect(DATABASE_URL)
+    # print("Connection established")
     socketio.run(app, port=5000, debug=True)
