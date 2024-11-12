@@ -8,3 +8,4 @@ python-dotenv
 pydantic
 SQLAlchemy
 PyJWT
+psycopg2
