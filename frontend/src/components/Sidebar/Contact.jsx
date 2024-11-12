@@ -23,9 +23,9 @@ const Contact = ({ contact }) => {
 			onClick={() => setUserAsUnread(contact.id)}
 		>
 			<div className="sidebar-contact__avatar-wrapper">
-				<img
+				{/* <img
 					className="avatar"
-				/>
+				/> */}
 			</div>
 			<div className="sidebar-contact__content">
 				<div className="sidebar-contact__top-content">

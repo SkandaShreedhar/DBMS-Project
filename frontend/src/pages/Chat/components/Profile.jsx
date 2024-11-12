@@ -1,25 +1,23 @@
 import React from "react";
-import groupAvatar from "assets/images/women.png";
-import media from "assets/images/placeholder.jpeg";
 import Checkbox from "components/Checkbox";
 import Icon from "components/Icon";
 
 const groups = [
 	{
 		name: "Group 1",
-		avatar: groupAvatar,
+		avatar: "",
 		members:
 			"Michelle Obama, Sandra Bullock, Kerry Washington, Beyonce Knowles, Kamala Harris, You",
 	},
 	{
 		name: "Group 2",
-		avatar: groupAvatar,
+		avatar: "",
 		members:
 			"Michelle Obama, Sandra Bullock, Kerry Washington, Beyonce Knowles, Kamala Harris, You",
 	},
 	{
 		name: "Group 3",
-		avatar: groupAvatar,
+		avatar: "",
 		members:
 			"Michelle Obama, Sandra Bullock, Kerry Washington, Beyonce Knowles, Kamala Harris, You",
 	},
@@ -30,7 +28,7 @@ const Profile = ({ user }) => {
 		<div className="profile">
 			<div className="profile__section profile__section--personal">
 				<div className="profile__avatar-wrapper">
-					<img src={user?.profile_picture} alt={user?.name} className="avatar" />
+					{/* <img src={user?.profile_picture} alt={user?.name} className="avatar" /> */}
 				</div>
 				<h2 className="profile__name"> {user?.name} </h2>
 			</div>
@@ -43,9 +41,9 @@ const Profile = ({ user }) => {
 					</button>
 				</div>
 				<div className="profile__media-wrapper">
+					{/* <img src={media} alt="media" className="profile__media" />
 					<img src={media} alt="media" className="profile__media" />
-					<img src={media} alt="media" className="profile__media" />
-					<img src={media} alt="media" className="profile__media" />
+					<img src={media} alt="media" className="profile__media" /> */}
 				</div>
 			</div>
 
@@ -103,21 +101,24 @@ const Profile = ({ user }) => {
 						<span> Groups in common </span> <span> 3</span>
 					</h2>
 				</div>
-				{groups.map((group) => (
-					<div className="profile__group" key={group.name}>
-						<div className="profile__group-avatar-wrapper">
-							<img src={group.avatar} alt="Group 3" className="avatar" />
-						</div>
-						<div className="profile__group-content">
-							<p className="profile__group-text profile__group-text--top">
-								{group.name}
-							</p>
-							<p className="profile__group-text profile__group-text--bottom">
-								{group.members}
-							</p>
-						</div>
-					</div>
-				))}
+				{
+				groups.map((group) => {
+					return <></>
+					// <div className="profile__group" key={group.name}>
+					// 	<div className="profile__group-avatar-wrapper">
+					// 		{/* <img src={group.avatar} alt="Group 3" className="avatar" /> */}
+					// 	</div>
+					// 	<div className="profile__group-content">
+					// 		<p className="profile__group-text profile__group-text--top">
+					// 			{group.name}
+					// 		</p>
+					// 		<p className="profile__group-text profile__group-text--bottom">
+					// 			{group.members}
+					// 		</p>
+					// 	</div>
+					// </div>
+				})
+				}
 			</div>
 
 			<div className="profile__section profile__section--danger">

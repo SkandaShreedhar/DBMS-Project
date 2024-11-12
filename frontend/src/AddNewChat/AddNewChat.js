@@ -25,6 +25,7 @@ function AddNewChat() {
 			})
 		}).then(data => {
             navigate("/")
+			window.location.reload()
 			return data.json()
 		})
 	};

@@ -1,6 +1,5 @@
 import Icon from "components/Icon";
 import React from "react";
-import media from "assets/images/women.jpeg";
 import formatTime from "utils/formatTime";
 
 const Convo = ({ lastMsgRef, messages: allMessages }) => {
@@ -25,7 +24,7 @@ const Convo = ({ lastMsgRef, messages: allMessages }) => {
 										}`}
 										ref={assignRef()}
 									>
-										<img src={media} alt="" className="chat__img" />
+										{/* <img src={media} alt="" className="chat__img" /> */}
 										<span className="chat__msg-footer">
 											{/* <span>{formatTime(message.time)}</span> */}
 											{!message.sender && (

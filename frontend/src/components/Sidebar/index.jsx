@@ -1,6 +1,5 @@
 import React from "react";
 import "./styles/main.css";
-import avatar from "assets/images/profile-picture-girl-1.jpeg";
 import Icon from "components/Icon";
 import Alert from "./Alert";
 import Contact from "./Contact";
