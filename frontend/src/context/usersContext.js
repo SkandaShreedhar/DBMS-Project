@@ -24,6 +24,7 @@ const UsersProvider = ({ children }) => {
 		}).then(data => {
 			if (data.status == 401) {
 				localStorage.removeItem("token");
+				localStorage.removeItem("username");
 				return null;
 			}
 			return data.json()

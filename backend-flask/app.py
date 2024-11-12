@@ -65,7 +65,8 @@ def login():
         return jsonify({
             "status": "OK",
             "message": "Login successful",
-            "token": token
+            "token": token,
+            "username": user[1]
         })
     else:
         return jsonify({

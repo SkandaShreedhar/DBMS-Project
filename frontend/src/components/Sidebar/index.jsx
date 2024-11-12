@@ -19,7 +19,7 @@ const Sidebar = () => {
 					<header className="header">
 						<div className="sidebar__avatar-wrapper">
 							{/* <img src={avatar} alt="Karen Okonkwo" className="avatar" /> */}
-							<p className="text-white">Rahul</p>
+							<p className=" ml-1 mt-1 text-green-700 text-xl"> {localStorage.getItem("username")}!</p>
 						</div>
 						<div className="sidebar__actions">
 							{/* <button className="sidebar__action" aria-label="Status">

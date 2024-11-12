@@ -19,7 +19,7 @@ const OptionsBtn = ({
 
 	const handleLogOut = () => {
 		localStorage.removeItem("token")
-
+		localStorage.removeItem("username");
 		navigate("/signin")
 	}
 
