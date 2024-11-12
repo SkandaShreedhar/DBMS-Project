@@ -19,6 +19,7 @@ const Sidebar = () => {
 					<header className="header">
 						<div className="sidebar__avatar-wrapper">
 							{/* <img src={avatar} alt="Karen Okonkwo" className="avatar" /> */}
+							<p className="text-white">Rahul</p>
 						</div>
 						<div className="sidebar__actions">
 							{/* <button className="sidebar__action" aria-label="Status">
