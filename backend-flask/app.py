@@ -59,7 +59,7 @@ def login():
         payload = {
             'userid': user[0],
             'phone_number': phoneNumber,  # You can include more user-specific data here
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Token expires in 1 hour
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token expires in 1 hour
         }
 
         token = jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
