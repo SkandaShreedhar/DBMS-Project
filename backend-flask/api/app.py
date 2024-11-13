@@ -14,31 +14,31 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-# app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-# app.config['MYSQL_DATABASE'] = os.getenv('MYSQL_DATABASE')
-# app.config['MYSQL_PORT'] = 3306
-# app.config['MYSQL_DATABASE_HOST'] = os.getenv('MYSQL_DATABASE_HOST')
+app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+app.config['MYSQL_DATABASE'] = os.getenv('MYSQL_DATABASE')
+app.config['MYSQL_PORT'] = 3306
+app.config['MYSQL_DATABASE_HOST'] = os.getenv('MYSQL_DATABASE_HOST')
 # app.config['MYSQL_UNIX_SOCKET'] = '/tmp/mysql.sock' # bro, u r on windows right... remove this line and try 
 
-DATABASE_URL = os.getenv("POSTGRES_URL")
+# DATABASE_URL = os.getenv("POSTGRES_URL")
 
 conn = None
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
-# mysql = MySQL(app)
+mysql = MySQL(app)
 
 socketio = SocketIO(app,cors_allowed_origins="*")
 
 def getcursor():
-    connection = conn.get_db_connection()
-    return connection.cursor()
-    # return mysql.connection.cursor()
+    # connection = conn.get_db_connection()
+    # return connection.cursor()
+    return mysql.connection.cursor()
 
 def db_commit(con):
-    # con.connection.commit()
-    con.commit()
+    con.connection.commit()
+    # con.commit()
 
 @app.route('/test_db')
 def test_db():
@@ -103,9 +103,19 @@ def signup():
 
     # Insert new user into the database
     cursor.execute("INSERT INTO Users (UserName, Password) VALUES (%s, %s)", (phoneNumber, password))
-    db_commit(con)
+    db_commit(mysql)
 
     cursor.close()
+
+    cursor = getcursor()
+    cursor.execute("SELECT MAX(UserID) FROM Users")
+    userid = cursor.fetchone()[0]
+    cursor.close()
+
+    print(f"Userid is {userid}")
+    cursor = getcursor()
+    cursor.execute("CALL AddAuditLog('User signed up', %s);", (userid,))
+    db_commit(mysql)
 
     return jsonify({"status": "OK", "message": "User created successfully"})
 
@@ -136,10 +146,26 @@ def get_chat_and_groups():
     cursor = getcursor()
     cursor.execute("SELECT UserID FROM Users WHERE UserName = %s", (UserName,))
     UserID = cursor.fetchone()[0]
+    cursor.close()
 
+    # cursor = getcursor()
+    # cursor.execute("SELECT * FROM Chats WHERE UserId1 = %s OR UserId2 = %s", (UserID, UserID))
+    
     cursor = getcursor()
-    cursor.execute("SELECT * FROM Chats WHERE UserId1 = %s OR UserId2 = %s", (UserID, UserID))
+    cursor.execute("""
+    WITH UserCTE AS (
+        SELECT UserID FROM Users WHERE UserName = %s
+    )
+    SELECT * FROM Chats 
+    WHERE UserId1 = (SELECT UserID FROM UserCTE) 
+    OR UserId2 = (SELECT UserID FROM UserCTE)
+""", (UserName,))
+
+    
     chats = cursor.fetchall()
+
+    
+
     cursor.close()
 
     otherUserIDS = []
@@ -207,7 +233,7 @@ def addnewchat():
 
     cursor = getcursor()
     cursor.execute("INSERT INTO Chats (ChatId, UserId1, UserId2) VALUES (%s, %s, %s)", (newChatId, UserID, OtherUserID))
-    db_commit(con)
+    db_commit(mysql)
 
     return {
         "message": "OK"
@@ -248,6 +274,7 @@ def get_conversation():
         (username,)
     )
     user_id = cursor.fetchone()[0]
+
     cursor.close()
 
 
@@ -280,6 +307,49 @@ def get_conversation():
         "message": "OK",
         "allmessages": all_messages_sorted
     }
+
+@app.route("/deleteuser", methods=["POST"])
+def deleteuser():
+    data = request.get_json()
+    token = data.get('token')
+
+    try:
+        data = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+    except Exception as e:
+        print(e)
+        return {"message": "Check your token please"}, 401
+    
+    username = data.get('phone_number')
+
+    cursor = getcursor()
+    cursor.execute("SELECT userid FROM users WHERE username = %s;", (username,))
+    user_id = cursor.fetchone()[0]
+
+    delete_commands = [
+        # Delete from messages table where SenderID is the user_id
+        "DELETE FROM messages WHERE senderid = %s;",
+        
+        # Delete from chats table where UserID1 is the user_id
+        "DELETE FROM chats WHERE userid1 = %s;",
+        
+        # Delete from chats table where UserID2 is the user_id
+        "DELETE FROM chats WHERE userid2 = %s;",
+        
+        # Delete from auditlogs table where UserID is the user_id
+        "DELETE FROM auditlogs WHERE userid = %s;",
+        
+        # Delete from messages table where ReceiverID is the user_id
+        "DELETE FROM messages WHERE receiverid = %s;",
+        
+        # Finally, delete from users table where UserID is the user_id
+        "DELETE FROM users WHERE userid = %s;"
+    ]
+    
+    # Executing each command with the dynamic user_id
+    for command in delete_commands:
+        cursor = getcursor()
+        cursor.execute(command, (user_id,))
+        cursor.close()
 
 # Handle WebSocket connections
 @socketio.on('connect')
@@ -350,7 +420,7 @@ def handle_message(data):
         "INSERT INTO Messages (Message, SenderID, ReceiverID, MediaID) VALUES (%s, %s, %s, NULL)",
         (message, int(sender_id), int(receiver_id))
     )
-    db_commit(con)
+    db_commit(mysql)
     cursor.close()
 
     cursor = getcursor()
@@ -381,6 +451,6 @@ def handle_message(data):
 
 if __name__ == '__main__':
     # print("Attempting to connect to the database")
-    conn = psycopg2.connect(DATABASE_URL)
-    # print("Connection established")
+    # conn = psycopg2.connect(DATABASE_URL)
+    # print("`Con`nection established")
     socketio.run(app, port=5000, debug=True)

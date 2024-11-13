@@ -27,6 +27,24 @@ const OptionsBtn = ({
 		navigate("/addchat")
 	}
 
+	const handleDeleteProfile = () => {
+		fetch("http://localhost:5000/deleteuser", {
+			"method": "POST",
+			"headers": {
+				"Content-Type": "application/json"
+			},
+			"body": JSON.stringify({
+				"token": localStorage.getItem("token")
+			})
+		}).then(data => {
+			if (data.status == 200) {
+				localStorage.removeItem("token")
+				localStorage.removeItem("usernname")
+				navigate("/signin")
+			}
+		})
+	}
+
 	return (
 		<div className="pos-rel">
 			<button
@@ -56,6 +74,9 @@ const OptionsBtn = ({
 					<li onClick={handleLogOut} className="options-btn__option">
 						Logout
 					</li>
+					{/* <li onClick={handleDeleteProfile} className="options-btn__option">
+						Delete Profile
+					</li> */}
 			</ul>
 		</div>
 	);
